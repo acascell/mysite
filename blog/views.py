@@ -10,7 +10,12 @@ from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
 
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.contrib.postgres.search import (
+    SearchVector,
+    SearchQuery,
+    SearchRank,
+    TrigramSimilarity,
+)
 
 # Create your views here.
 
@@ -117,10 +122,16 @@ def post_search(request):
             search_query = SearchQuery(query, config="spanish")
             results = (
                 Post.published.annotate(
-                    search=search_vector, rank=SearchRank(search_vector, search_query)
+                    similarity=TrigramSimilarity("title", query),
                 )
-                .filter(rank__gte=0.3)
-                .order_by("-rank")
+                .filter(similarity__gte=0.3)
+                .order_by("-similarity")
+                # experiment multiple ways of performing a search algorithm
+                # Post.published.annotate(
+                #     search=search_vector, rank=SearchRank(search_vector, search_query)
+                # )
+                # .filter(rank__gte=0.3)
+                # .order_by("-rank")
             )
 
     context = {"form": form, "query": query, "results": results}
