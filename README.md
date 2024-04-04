@@ -2,6 +2,7 @@
 Blog web application using Django
 
 ![blog_logo.png](templates%2Fblog%2Fstatic%2Fblog_logo.png)
+
 ## MyBlog - A simple Blog application  
 # Share your personal thoughts and daily stories
 
