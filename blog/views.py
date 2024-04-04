@@ -1,4 +1,3 @@
-from django.contrib.postgres.search import SearchVector
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 
@@ -10,6 +9,8 @@ from django.views.decorators.http import require_POST
 
 from taggit.models import Tag
 from django.db.models import Count
+
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 # Create your views here.
 
@@ -110,9 +111,17 @@ def post_search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data["query"]
-            results = Post.published.annotate(
-                search=SearchVector("title", "body"),
-            ).filter(search=query)
+            search_vector = SearchVector(
+                "title", weight="A", config="spanish"
+            ) + SearchVector("body", weight="B", config="spanish")
+            search_query = SearchQuery(query, config="spanish")
+            results = (
+                Post.published.annotate(
+                    search=search_vector, rank=SearchRank(search_vector, search_query)
+                )
+                .filter(rank__gte=0.3)
+                .order_by("-rank")
+            )
 
     context = {"form": form, "query": query, "results": results}
 
