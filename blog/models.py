@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils.text import slugify
 from taggit.managers import TaggableManager
 
 
@@ -19,7 +20,9 @@ class Post(models.Model):
         PUBLISHED = "PB", "Published"
 
     title = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250, unique_for_date="publish")
+    slug = models.SlugField(
+        max_length=250, unique_for_date="publish", blank=True, null=True
+    )
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_post")
     body = models.TextField()
     publish = models.DateTimeField(default=timezone.now)
@@ -47,6 +50,23 @@ class Post(models.Model):
             "blog:post_detail",
             args=[self.publish.year, self.publish.month, self.publish.day, self.slug],
         )
+
+    def save(self, *args, **kwargs):
+        # Check if the instance already has a slug, and if not, generate one
+        if not self.slug:
+            self.slug = slugify(self.title)
+            # Handle potential duplicate slugs for posts published on the same date
+            orig_slug = self.slug
+            count = 1
+            while Post.objects.filter(
+                slug=self.slug,
+                publish__year=self.publish.year,
+                publish__month=self.publish.month,
+                publish__day=self.publish.day,
+            ).exists():
+                self.slug = f"{orig_slug}-{count}"
+                count += 1
+        super(Post, self).save(*args, **kwargs)
 
 
 class Comment(models.Model):

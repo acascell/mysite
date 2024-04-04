@@ -48,21 +48,43 @@ p.date {
 }
 
 /* forms */
+
+/* Ensure the form elements are not floating and have a clear layout */
+form {
+    overflow: auto; /* Clear floats */
+    width: 100%; /* Optional: Adjust based on desired form width */
+    margin-bottom: 20px; /* Ensure some space below the form */
+}
+
+/* Style the form fields container for better alignment */
+form p {
+    clear: both;
+    margin: 10px 0; /* Add some vertical spacing between form fields */
+    padding: 0; /* Reset any default padding */
+    overflow: hidden; /* Clear floats inside */
+}
+
+/* Adjust the submit button styling for better positioning and appearance */
+input[type="submit"] {
+    display: block; /* Ensure the button takes its own line */
+    width: auto; /* Allow the button to size according to its content */
+    margin: 20px 0 0; /* Add some space above the button */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+/* Further refine input and textarea fields styling */
+input, textarea {
+    width: calc(100% - 20px); /* Adjust width to fit container, accounting for padding */
+    box-sizing: border-box; /* Include padding and border in the element's total width */
+}
+
 label {
     float:left;
     clear:both;
     color:#333;
     margin-bottom:4px;
 }
-input, textarea {
-    clear:both;
-    float:left;
-    margin:0 0 10px;
-    background:#ededed;
-    border:0;
-    padding:6px 10px;
-    font-size:12px;
-}
+
 input[type=submit] {
     font-weight:bold;
     background:#00abff;
