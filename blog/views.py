@@ -1,7 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
 
-from .forms import EmailPostForm, CommentForm, SearchForm
+from .forms import EmailPostForm, CommentForm, SearchForm, BlogForm
 from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
@@ -18,6 +18,21 @@ from django.contrib.postgres.search import (
 )
 
 # Create your views here.
+
+
+def home(request):
+    return redirect("blog:post_list")
+
+
+def add_post(request):
+    if request.method == "POST":
+        form = BlogForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("blog:post_list")
+    else:
+        form = BlogForm()
+        return render(request, "blog/post/add_post.html", {"form": form})
 
 
 class PostListView(ListView):
